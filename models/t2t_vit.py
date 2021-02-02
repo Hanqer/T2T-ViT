@@ -102,9 +102,9 @@ class T2T_module(nn.Module):
         return x
 
 class Unfolding(nn.Module):
-    def __init__(self, dim):
+    def __init__(self, dim, stride):
         super().__init__()
-        self.conv = nn.Sequential(nn.Conv2d(dim, dim, kernel_size=3, stride=2), nn.ReLU(),
+        self.conv = nn.Sequential(nn.Conv2d(dim, dim, kernel_size=3, stride=stride), nn.ReLU(),
                                 nn.Conv2d(dim, dim, 1))
 
     def forward(self, x):
@@ -140,7 +140,11 @@ class T2T_ViT(nn.Module):
                 drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer))
             if i in [2, 5]:
                 self.blocks.append(
-                    Unfolding(embed_dim)
+                    Unfolding(embed_dim, stride=2)
+                )
+            elif i in [0, 1, 3, 4]:
+                self.blocks.append(
+                    Unfolding(embed_dim, stride=1)
                 )
         self.norm = norm_layer(embed_dim)
 
