@@ -208,7 +208,7 @@ parser.add_argument('--log-interval', type=int, default=50, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--recovery-interval', type=int, default=0, metavar='N',
                     help='how many batches to wait before writing recovery checkpoint')
-parser.add_argument('-j', '--workers', type=int, default=8, metavar='N',
+parser.add_argument('-j', '--workers', type=int, default=4, metavar='N',
                     help='how many training processes to use (default: 1)')
 parser.add_argument('--num-gpu', type=int, default=1,
                     help='Number of GPUS to use')
