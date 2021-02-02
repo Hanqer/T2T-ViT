@@ -104,7 +104,7 @@ class T2T_module(nn.Module):
 class Unfolding(nn.Module):
     def __init__(self, dim, stride):
         super().__init__()
-        self.conv = nn.Sequential(nn.Conv2d(dim, dim, kernel_size=3, stride=stride), nn.ReLU(),
+        self.conv = nn.Sequential(nn.Conv2d(dim, dim, kernel_size=3, stride=stride, groups=dim), nn.ReLU(),
                                 nn.Conv2d(dim, dim, 1))
 
     def forward(self, x):
