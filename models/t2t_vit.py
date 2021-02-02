@@ -51,11 +51,11 @@ class T2T_module(nn.Module):
 
         if tokens_type == 'transformer':
             print('adopt transformer encoder for tokens-to-token')
-            self.soft_split0 = nn.Unfold(kernel_size=(3, 3), stride=(2, 2), padding=(2, 2))
+            self.soft_split0 = nn.Unfold(kernel_size=(7, 7), stride=(4, 4), padding=(2, 2))
             self.soft_split1 = nn.Unfold(kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
             self.soft_split2 = nn.Unfold(kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
 
-            self.attention1 = Token_transformer(dim=in_chans * 3 * 3, in_dim=token_dim, num_heads=1, mlp_ratio=1.0)
+            self.attention1 = Token_transformer(dim=in_chans * 7 * 7, in_dim=token_dim, num_heads=1, mlp_ratio=1.0)
             self.attention2 = Token_transformer(dim=token_dim * 3 * 3, in_dim=token_dim, num_heads=1, mlp_ratio=1.0)
             self.project = nn.Linear(token_dim * 3 * 3, embed_dim)
 
@@ -138,7 +138,7 @@ class T2T_ViT(nn.Module):
             self.blocks.append(Block(
                 dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
                 drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer))
-            if i in [1, 3, 5]:
+            if i in [2, 5]:
                 self.blocks.append(
                     Unfolding(embed_dim)
                 )
