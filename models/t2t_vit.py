@@ -100,6 +100,21 @@ class T2T_module(nn.Module):
 
         return x
 
+class Unfolding(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.conv = nn.Sequential(nn.Conv2d(dim, dim, kernel_size=3, stride=2), nn.ReLU(),
+                                nn.Conv2d(dim, dim, 1))
+
+    def forward(self, x):
+        b, n, c = x.shape
+        img_size = int(round((n - 1) ** 0.5))
+        cls_token = x[:, 0, :].view(b, 1, c)
+        x_img = x[:, 1:, :].view(b, img_size, img_size, c).permute(0, 3, 1, 2)
+        x_img = self.conv(x_img).view(b, c, -1).permute(0, 2, 1)
+        x = torch.cat([cls_token, x_img], dim=1)
+        return x
+
 class T2T_ViT(nn.Module):
     def __init__(self, img_size=224, tokens_type='performer', in_chans=3, num_classes=1000, embed_dim=768, depth=12,
                  num_heads=12, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop_rate=0., attn_drop_rate=0.,
@@ -117,11 +132,15 @@ class T2T_ViT(nn.Module):
         self.pos_drop = nn.Dropout(p=drop_rate)
 
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
-        self.blocks = nn.ModuleList([
-            Block(
+        self.blocks = nn.ModuleList([])
+        for i in range(depth):
+            self.blocks.append(Block(
                 dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
-                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer)
-            for i in range(depth)])
+                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer))
+            if i in [1, 3, 5]:
+                self.blocks.append(
+                    Unfolding(embed_dim)
+                )
         self.norm = norm_layer(embed_dim)
 
         # Classifier head
