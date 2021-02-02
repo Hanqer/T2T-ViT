@@ -39,6 +39,7 @@ default_cfgs = {
     'T2t_vit_12': _cfg(),
     'T2t_vit_14_resnext': _cfg(),
     'T2t_vit_14_wide': _cfg(),
+    'T2t_vit_t_7': _cfg(),
 }
 
 class T2T_module(nn.Module):
@@ -223,6 +224,16 @@ def T2t_vit_t_24(pretrained=False, **kwargs):  # adopt transformers for tokens t
             model, num_classes=model.num_classes, in_chans=kwargs.get('in_chans', 3))
     return model
 
+@register_model
+def T2t_vit_t_7(pretrained=False, **kwargs): # adopt performer for tokens to token
+    if pretrained:
+        kwargs.setdefault('qk_scale', 256 ** -0.5)
+    model = T2T_ViT(tokens_type='transformer', embed_dim=256, depth=7, num_heads=4, mlp_ratio=2., **kwargs)
+    model.default_cfg = default_cfgs['T2t_vit_7']
+    if pretrained:
+        load_pretrained(
+            model, num_classes=model.num_classes, in_chans=kwargs.get('in_chans', 3))
+    return model
 
 @register_model
 def T2t_vit_7(pretrained=False, **kwargs): # adopt performer for tokens to token
